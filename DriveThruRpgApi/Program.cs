@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Text.Json;
+using DriveThruRpgApi.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -28,6 +30,26 @@ if (!apiClient.GetToken()) {
     Console.WriteLine("Unable to get DriveThruRPG access token.");
 }
 
-// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
-Console.WriteLine(apiApplicationKey);
+var getProducts = true;
+var startPage = 1;
+var productsPerPage = 25;
+var products = new List<ApiProductMessageResponse>();
+
+while (getProducts) {
+    var pulledProducts = apiClient.GetProducts(startPage, productsPerPage);
+    if (pulledProducts != null && pulledProducts.Message != null && pulledProducts.Message.Any()) {
+        products.AddRange(pulledProducts.Message);
+        startPage++;
+    } else {
+        getProducts = false;
+    }
+
+    if (startPage >= 5) {
+        getProducts = false;
+    }
+}
+
+Console.WriteLine(JsonSerializer.Serialize(products));
+
+Console.WriteLine("Application complete. Press Enter to exit.");
+_ = Console.ReadLine();
