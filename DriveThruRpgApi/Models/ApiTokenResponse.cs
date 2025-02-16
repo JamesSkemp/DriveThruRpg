@@ -4,10 +4,12 @@ namespace DriveThruRpgApi.Models
 {
     public class ApiTokenResponse
     {
-        [JsonPropertyName("status")]
-        public string? Status { get; set; }
-        [JsonPropertyName("message")]
-        public ApiTokenMessageResponse? Message { get; set; }
+        [JsonPropertyName("token")]
+        public string? Token { get; set; }
+        [JsonPropertyName("refreshToken")]
+        public string? RefreshToken { get; set; }
+        [JsonPropertyName("refreshTokenTTL")]
+        public int RefreshTokenTtl { get; set; }
     }
 
     public class ApiTokenMessageResponse

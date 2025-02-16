@@ -1,13 +1,13 @@
+using DriveThruRpgApi.Models;
 using System.Net.Http.Json;
 using System.Text.Json;
-using DriveThruRpgApi.Models;
 
 public class ApiClient
 {
-    private string apiBaseUrl = "https://www.drivethrurpg.com/api/v1/";
+    private string apiBaseUrl = "https://api.drivethrurpg.com/api/vBeta/";
     private readonly HttpClient httpClient;
     private string applicationKey;
-    private ApiTokenMessageResponse? apiTokenResponse;
+    private ApiTokenResponse? apiTokenResponse;
 
     public ApiClient(HttpClient httpClient, string applicationKey)
     {
@@ -18,23 +18,27 @@ public class ApiClient
     public bool GetToken()
     {
         var headers = httpClient.DefaultRequestHeaders;
-        headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", applicationKey);
+        //headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", applicationKey);
 
-        var request = new HttpRequestMessage(HttpMethod.Post, apiBaseUrl + "token")
+        var request = new HttpRequestMessage(HttpMethod.Post, apiBaseUrl + $"auth_key?applicationKey={applicationKey}")
         {
-            Content = JsonContent.Create(new { })
+            Content = JsonContent.Create(new { }),
         };
 
         var response = httpClient.Send(request);
 
-        if (!response.IsSuccessStatusCode) {
+        if (!response.IsSuccessStatusCode)
+        {
             throw new Exception($"DriveThruRPG API failed to create a token: {(int)response.StatusCode} {response.ReasonPhrase}");
         }
 
-        var tokenResponse = JsonSerializer.Deserialize<ApiTokenResponse>(response.Content.ReadAsStringAsync().Result);
+        var result = response.Content.ReadAsStringAsync().Result;
 
-        if (tokenResponse != null && tokenResponse.Message != null) {
-            apiTokenResponse = tokenResponse.Message;
+        var tokenResponse = JsonSerializer.Deserialize<ApiTokenResponse>(result);
+
+        if (tokenResponse != null)
+        {
+            apiTokenResponse = tokenResponse;
 
             return true;
         }
@@ -42,48 +46,47 @@ public class ApiClient
         return false;
     }
 
-    public ApiProductResponse GetProducts(int page = 1, int perPage = 15) {
+    public ApiProductResponse GetProducts(int page = 1, int perPage = 15)
+    {
         // TODO validate access token
 
         var headers = httpClient.DefaultRequestHeaders;
-        headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", GetAccessToken());
+        headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(GetAccessToken());
 
         var queryParameters = new Dictionary<string, string> {
             { "page", page.ToString() },
-            { "per_page", perPage.ToString() }
+            { "pageSize", perPage.ToString() }
         };
 
         var dictFormUrlEncoded = new FormUrlEncodedContent(queryParameters);
         var queryString = dictFormUrlEncoded.ReadAsStringAsync().Result;
 
-        var request = new HttpRequestMessage(HttpMethod.Get, apiBaseUrl + $"customers/{apiTokenResponse.CustomersId}/products?{queryString}");
+        var request = new HttpRequestMessage(HttpMethod.Get, apiBaseUrl + $"order_products?{queryString}");
 
         var response = httpClient.Send(request);
 
-        if (!response.IsSuccessStatusCode) {
+        if (!response.IsSuccessStatusCode)
+        {
             throw new Exception($"DriveThruRPG API failed to get products: {(int)response.StatusCode} {response.ReasonPhrase}");
         }
 
         //Console.WriteLine(JsonSerializer.Serialize(response));
         //Console.WriteLine(response.Content.ReadAsStringAsync().Result);
 
-        var productResponse = JsonSerializer.Deserialize<ApiProductResponse>(response.Content.ReadAsStringAsync().Result);
+        var result = response.Content.ReadAsStringAsync().Result;
 
-        if (productResponse != null && productResponse.Message != null) {
+        var productResponse = JsonSerializer.Deserialize<ApiProductResponse>(result);
+
+        if (productResponse != null && productResponse.Data != null)
+        {
             return productResponse;
         }
 
         return null;
     }
 
-    public string GetCustomerId() {
-        if (apiTokenResponse == null) {
-            return "";
-        }
-        return apiTokenResponse.CustomersId;
-    }
-
-    private string GetAccessToken() {
-        return apiTokenResponse?.AccessToken;
+    private string GetAccessToken()
+    {
+        return apiTokenResponse?.Token != null ? apiTokenResponse.Token : throw new Exception($"Unable to get a valid access token.");
     }
 }

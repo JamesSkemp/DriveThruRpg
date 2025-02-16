@@ -4,23 +4,31 @@ namespace DriveThruRpgApi.Models
 {
     public class ApiProductResponse
     {
-        [JsonPropertyName("status")]
-        public string? Status { get; set; }
-        [JsonPropertyName("message")]
-        public List<ApiProductMessageResponse>? Message { get; set; }
+        [JsonPropertyName("data")]
+        public List<ApiProductDataResponse>? Data { get; set; }
+    }
+
+    public class ApiProductDataResponse
+    {
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+        [JsonPropertyName("attributes")]
+        public ApiProductMessageResponse Products { get; set; }
     }
 
     public class ApiProductMessageResponse
     {
-        [JsonPropertyName("products_id")]
-        public string? ProductsId { get; set; }
-        [JsonPropertyName("products_name")]
+        [JsonPropertyName("orderId")]
+        public int OrderId { get; set; }
+        [JsonPropertyName("productId")]
+        public int ProductsId { get; set; }
+        [JsonPropertyName("name")]
         public string? ProductsName { get; set; }
-        [JsonPropertyName("is_archived")]
-        public string? IsArchived { get; set; }
-        [JsonPropertyName("cover_url")]
-        public string? CoverUrl { get; set; }
-        [JsonPropertyName("date_purchased")]
+        [JsonPropertyName("archived")]
+        public int IsArchived { get; set; }
+        /*[JsonPropertyName("cover_url")]
+        public string? CoverUrl { get; set; }*/
+        [JsonPropertyName("datePurchased")]
         public string? DatePurchased { get; set; }
     }
 }
