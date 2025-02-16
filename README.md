@@ -1,5 +1,5 @@
-# DriveThruRPG API Application for .NET 6
-This is a .NET 6 console application for working with the DriveThruRPG API.
+# DriveThruRPG API Application for .NET 8
+This is a .NET 8 console application for working with the DriveThruRPG API.
 
 ## Resources
 - [DriveThruRPG](https://www.drivethrurpg.com/)
@@ -8,7 +8,7 @@ This is a .NET 6 console application for working with the DriveThruRPG API.
 - https://github.com/glujan/drpg
 
 ## Building
-- Requires [the .NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) for your operating system of choice.
+- Requires [the .NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) for your operating system of choice.
 - Run `dotnet build` or `dotnet publish` from the **DriveThruRpgApi** directory.
 
 ## Running
